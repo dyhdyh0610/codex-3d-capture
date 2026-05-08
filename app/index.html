@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>上肢康复 App</title>
+    <link rel="stylesheet" href="/app/styles.css" />
+  </head>
+  <body>
+    <main class="phone-shell" aria-label="上肢康复 App 原型">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span class="device-pill"></span>
+        <span>5G</span>
+      </div>
+
+      <section class="screen is-active" id="homeScreen" data-screen="home">
+        <header class="page-header page-header--home">
+          <div>
+            <h1>上肢康复</h1>
+            <p>上午好，康复者</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="提醒">⌁</button>
+        </header>
+
+        <article class="data-banner" id="dataBanner">
+          <span class="pulse-dot"></span>
+          <div>
+            <strong>正在读取训练数据</strong>
+            <p>连接本地 3D Capture</p>
+          </div>
+        </article>
+
+        <article class="card limb-card">
+          <div class="card-heading">
+            <h2>上肢状态概览</h2>
+            <span id="homeScoreLabel">暂无数据</span>
+          </div>
+          <div class="arm-preview" aria-hidden="true">
+            <div class="arm-line arm-line--left"></div>
+            <div class="arm-line arm-line--right"></div>
+            <span class="joint joint--shoulder-left"></span>
+            <span class="joint joint--elbow-left"></span>
+            <span class="joint joint--wrist-left"></span>
+            <span class="joint joint--shoulder-right"></span>
+            <span class="joint joint--elbow-right"></span>
+            <span class="joint joint--wrist-right"></span>
+          </div>
+          <div class="part-grid" id="partGrid"></div>
+        </article>
+
+        <button class="primary-button" id="viewReportButton" type="button">查看本次报告</button>
+
+        <article class="card">
+          <div class="card-heading">
+            <h2>今日训练摘要</h2>
+            <span id="sessionBadge">未连接</span>
+          </div>
+          <div class="summary-grid">
+            <div>
+              <span>训练时长</span>
+              <strong id="durationMetric">--</strong>
+            </div>
+            <div>
+              <span>有效采样</span>
+              <strong id="validMetric">--</strong>
+            </div>
+            <div>
+              <span>综合评分</span>
+              <strong id="scoreMetric">--</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="screen" id="recordsScreen" data-screen="records">
+        <header class="page-header">
+          <div>
+            <h1>训练记录</h1>
+            <p>自动同步最新一次捕捉结果</p>
+          </div>
+        </header>
+
+        <div class="segmented">
+          <button class="is-selected" type="button">全部</button>
+          <button type="button">本周</button>
+          <button type="button">本月</button>
+        </div>
+
+        <article class="card trend-card">
+          <div class="card-heading">
+            <h2>能力趋势</h2>
+            <span id="trendScore">--</span>
+          </div>
+          <svg viewBox="0 0 300 96" role="img" aria-label="训练能力趋势图">
+            <polyline points="6,70 48,62 92,66 134,52 176,58 218,44 260,48 294,30"></polyline>
+            <circle cx="294" cy="30" r="4"></circle>
+          </svg>
+        </article>
+
+        <article class="card report-card" id="reportCard">
+          <div class="card-heading">
+            <h2>本次训练报告</h2>
+            <span id="reportTime">--</span>
+          </div>
+          <div class="score-row">
+            <div class="score-ring"><strong id="reportScore">0</strong><span>分</span></div>
+            <div>
+              <h3 id="reportTitle">等待训练数据</h3>
+              <p id="reportSummary">完成一次 3D Capture 后，这里会自动生成报告。</p>
+            </div>
+          </div>
+          <div class="feedback-list" id="feedbackList"></div>
+        </article>
+
+        <article class="card replay-card">
+          <div class="card-heading">
+            <h2>运动轨迹回放</h2>
+            <span id="frameLabel">0 / 0</span>
+          </div>
+          <canvas id="replayCanvas" width="640" height="420" aria-label="上肢运动轨迹回放"></canvas>
+          <div class="replay-controls">
+            <button class="play-button" id="playButton" type="button">播放</button>
+            <input id="timelineInput" type="range" min="0" max="0" value="0" />
+          </div>
+          <div class="replay-stats">
+            <span id="nodeMetric">关键点 --</span>
+            <span id="elapsedMetric">时间 --</span>
+          </div>
+        </article>
+
+        <article class="card history-card">
+          <div class="card-heading">
+            <h2>历史记录</h2>
+            <span>演示数据</span>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </article>
+      </section>
+
+      <section class="screen" id="contentScreen" data-screen="content">
+        <header class="page-header">
+          <div>
+            <h1>康复内容</h1>
+            <p>按部位选择训练内容</p>
+          </div>
+        </header>
+        <div class="segmented">
+          <button class="is-selected" type="button">肩部</button>
+          <button type="button">肘部</button>
+          <button type="button">腕部</button>
+          <button type="button">手部</button>
+        </div>
+        <div class="course-list" id="courseList"></div>
+      </section>
+
+      <section class="screen" id="profileScreen" data-screen="profile">
+        <header class="page-header">
+          <div>
+            <h1>我的</h1>
+            <p>训练数据与设备状态</p>
+          </div>
+        </header>
+
+        <article class="profile-card">
+          <div class="avatar">人</div>
+          <div>
+            <h2>康复者</h2>
+            <p>普通会员</p>
+            <span id="profileConnection">设备连接检测中</span>
+          </div>
+        </article>
+
+        <nav class="settings-list" aria-label="设置">
+          <a href="#device">设备连接<span id="deviceStatus">检测中</span></a>
+          <a href="#reminder">提醒设置<span>›</span></a>
+          <a href="#privacy">账户与隐私<span>›</span></a>
+          <a href="#help">帮助中心<span>›</span></a>
+          <a href="#about">关于我们<span>›</span></a>
+        </nav>
+      </section>
+
+      <nav class="tabbar" aria-label="底部导航">
+        <button class="is-active" type="button" data-tab="home"><span>⌂</span>首页</button>
+        <button type="button" data-tab="records"><span>▣</span>训练记录</button>
+        <button type="button" data-tab="content"><span>◈</span>康复内容</button>
+        <button type="button" data-tab="profile"><span>●</span>我的</button>
+      </nav>
+    </main>
+
+    <script type="module" src="/app/app.js"></script>
+  </body>
+</html>

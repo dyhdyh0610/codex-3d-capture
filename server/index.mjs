@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { dirname, extname, join, normalize, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeCapturePayload } from "./captureStore.mjs";
+import { readLatestCapturePayload, writeCapturePayload } from "./captureStore.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, "..");
@@ -37,6 +37,12 @@ const server = createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/captures/latest") {
+      const latest = await readLatestCapturePayload(captureDir);
+      sendJson(res, 200, latest ?? { capture: null, error: "No capture files found" });
+      return;
+    }
+
     if (req.method !== "GET") {
       sendJson(res, 405, { error: "Method not allowed" });
       return;
@@ -54,7 +60,8 @@ server.listen(port, "127.0.0.1", () => {
 });
 
 async function serveStatic(pathname, res) {
-  const relativePath = pathname === "/" ? "index.html" : decodeURIComponent(pathname.slice(1));
+  const relativePath =
+    pathname === "/" ? "index.html" : decodeURIComponent(pathname.endsWith("/") ? `${pathname.slice(1)}index.html` : pathname.slice(1));
   const safeRelative = normalize(relativePath).replace(/^(\.\.[/\\])+/, "");
 
   if (!isPublicPath(safeRelative)) {
@@ -78,7 +85,13 @@ async function serveStatic(pathname, res) {
 }
 
 function isPublicPath(relativePath) {
-  return relativePath === "index.html" || relativePath.startsWith(`src${sep}`) || relativePath.startsWith("src/");
+  return (
+    relativePath === "index.html" ||
+    relativePath.startsWith(`src${sep}`) ||
+    relativePath.startsWith("src/") ||
+    relativePath.startsWith(`app${sep}`) ||
+    relativePath.startsWith("app/")
+  );
 }
 
 async function readJsonBody(req) {
